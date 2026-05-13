@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vital Hub | Smart Consultation Wizard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="CSS/style.css">
+    <link rel="stylesheet" href="CSS/style.css">
+    <style>
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+        .mode-card.active { border-color: #3b82f6; background-color: #eff6ff; border-width: 3px; }
+        .specialist-card.hidden { display: none; }
+        #ai-hub { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* Search input focus */
+        #disease-search { transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1); }
+        #disease-search:focus { transform: scale(1.005); }
+
+        /* Success message animation */
+        @keyframes successPop {
+            from { opacity:0; transform: scale(0.8) translateY(30px); }
+            to   { opacity:1; transform: scale(1) translateY(0); }
+        }
+        #success-message { animation: successPop 0.7s cubic-bezier(0.34,1.56,0.64,1) both; }
+
+        /* Confirm button pulse when ready */
+        @keyframes readyPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); }
+            50%      { box-shadow: 0 0 0 8px rgba(59,130,246,0); }
+        }
+        #confirm-btn { animation: readyPulse 2.5s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 overflow-x-hidden">
+    <div id="progress-bar"></div>
+
+    <header class="flex justify-between items-center px-8 lg:px-12 py-6 bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-100">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+            <div class="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-100">
+                <i data-lucide="activity"></i>
+            </div>
+            <span class="text-2xl font-black tracking-tighter text-blue-900 uppercase">Vital Hub</span>
+        </div>
+        <nav class="hidden lg:flex gap-10 text-[10px] font-black uppercase tracking-widest text-slate-400">
+            <a href="index.html" class="hover:text-blue-600 transition">Home</a>
+            <a href="store.html" class="hover:text-blue-600 transition">Store</a>
+            <a href="nutrition.html" class="hover:text-blue-600 transition">Nutrition AI</a>
+            <a href="xray.html" class="hover:text-blue-600 transition">X-Ray Demo</a>
+            <a href="appointment.html" class="text-blue-600">Book Appointment</a>
+        </nav>
+        <div class="flex items-center gap-4">
+            <div class="bg-slate-100 p-2 rounded-full"><i data-lucide="user" size="18"></i></div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-10 px-6">
+        <div id="form-container" class="grid grid-cols-1 lg:grid-cols-12 gap-10 reveal">
+            <div class="lg:col-span-7 space-y-10">
+                <section>
+                    <div class="mb-6">
+                        <h3 class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Step 1: AI Concierge</h3>
+                        <h2 class="text-3xl font-black tracking-tight text-slate-900">What are we treating today?</h2>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="disease-search" oninput="filterSpecialists()" placeholder="Search symptoms (e.g. Cough, Fracture, Heart)..." 
+                               class="w-full p-5 pl-14 bg-white border-2 border-slate-100 focus:border-blue-500 rounded-[25px] text-sm font-bold outline-none transition-all shadow-sm">
+                        <i data-lucide="search" class="absolute left-5 top-5 text-slate-400" size="20"></i>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-black tracking-tight text-slate-900">Recommended Experts</h2>
+                        <span id="expert-count" class="text-[9px] font-black text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full uppercase">All Doctors Online</span>
+                    </div>
+                    <div id="specialist-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar"></div>
+                </section>
+
+                <section>
+                    <h2 class="text-xl font-black tracking-tight text-slate-900 mb-6">Consultation Mode</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div onclick="selectMode(this, 'Instant Video')" class="mode-card active p-4 bg-white border-2 border-slate-100 rounded-3xl text-center cursor-pointer transition-all">
+                            <i data-lucide="zap" class="mx-auto mb-2 text-orange-500"></i>
+                            <p class="text-[9px] font-black uppercase tracking-widest">Instant Video</p>
+                        </div>
+                        <div onclick="selectMode(this, 'Scheduled')" class="mode-card p-4 bg-white border-2 border-slate-100 rounded-3xl text-center cursor-pointer transition-all">
+                            <i data-lucide="calendar" class="mx-auto mb-2 text-blue-600"></i>
+                            <p class="text-[9px] font-black uppercase tracking-widest">Schedule</p>
+                        </div>
+                        <div onclick="selectMode(this, 'Written Report')" class="mode-card p-4 bg-white border-2 border-slate-100 rounded-3xl text-center cursor-pointer transition-all">
+                            <i data-lucide="file-text" class="mx-auto mb-2 text-emerald-500"></i>
+                            <p class="text-[9px] font-black uppercase tracking-widest">Written</p>
+                        </div>
+                        <div onclick="selectMode(this, 'In-Clinic')" class="mode-card p-4 bg-white border-2 border-slate-100 rounded-3xl text-center cursor-pointer transition-all">
+                            <i data-lucide="map-pin" class="mx-auto mb-2 text-slate-400"></i>
+                            <p class="text-[9px] font-black uppercase tracking-widest">In-Clinic</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div class="lg:col-span-5">
+                <div class="sticky top-32 space-y-6">
+                    <div class="bg-slate-900 rounded-[40px] p-8 text-white shadow-2xl relative overflow-hidden">
+                        <h4 class="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mb-8">Checkout Summary</h4>
+                        <div class="space-y-5 mb-8">
+                            <div class="flex justify-between border-b border-white/5 pb-3">
+                                <span class="text-slate-500 text-xs font-bold uppercase">Patient</span>
+                                <input type="text" id="user-name" placeholder="Enter Name" class="bg-transparent text-right outline-none text-xs font-bold text-white placeholder:text-slate-700">
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 pb-3">
+                                <span class="text-slate-500 text-xs font-bold uppercase">Specialist</span>
+                                <span id="summary-doc" class="font-bold text-xs text-white">Select Doctor</span>
+                            </div>
+                            <div class="flex justify-between border-b border-white/5 pb-3">
+                                <span class="text-slate-500 text-xs font-bold uppercase">Consultation Fee</span>
+                                <span class="font-bold text-xs text-emerald-400">PKR 2,500</span>
+                            </div>
+                        </div>
+                        <button id="confirm-btn" onclick="handleBooking()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all shadow-xl">
+                            Confirm & Pay Securely
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="success-message" class="hidden text-center space-y-8 py-20 animate-in fade-in zoom-in duration-700">
+            <div class="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                <i data-lucide="check-circle" size="48"></i>
+            </div>
+            <h2 class="text-4xl font-black tracking-tighter text-slate-900 uppercase">Consultation Booked!</h2>
+            <button onclick="window.location.href='index.html'" class="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-all">Back to Dashboard</button>
+        </div>
+    </main>
+
+    <div id="ai-hub" class="fixed bottom-0 right-0 w-full md:w-[400px] h-[500px] bg-white shadow-2xl z-[100] rounded-t-[40px] border border-slate-100 flex flex-col translate-y-[120%] opacity-0">
+        <div class="p-6 bg-blue-600 text-white flex justify-between items-center rounded-t-[40px]">
+            <div class="flex items-center gap-3">
+                <i data-lucide="sparkles" class="bg-white/20 p-2 rounded-xl"></i>
+                <div>
+                    <h4 class="text-xs font-black uppercase tracking-widest">Medical Concierge</h4>
+                    <p class="text-[10px] text-blue-100 font-bold">Online • Neural Engine</p>
+                </div>
+            </div>
+            <button onclick="toggleAIHub()" class="text-white/50 hover:text-white transition"><i data-lucide="x" size="20"></i></button>
+        </div>
+        <div id="ai-content" class="flex-grow p-6 overflow-y-auto space-y-4 custom-scrollbar bg-slate-50/50">
+            <div class="flex gap-3 mb-4">
+                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <i data-lucide="sparkles" size="14"></i>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm max-w-[85%]">
+                    <p class="text-xs font-bold text-slate-700 leading-relaxed">Hello! I'm your Vital Hub concierge 🩺. I can help you book a specialist or explain our consultation modes. How can I assist your booking today?</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 bg-white border-t border-slate-100">
+            <div class="relative">
+                <input type="text" id="ai-input" onkeypress="if(event.key === 'Enter') processAIConciergeQuery()" placeholder="Ask about specialists or modes..." class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-blue-600 text-xs font-bold transition-all pr-12">
+                <button onclick="processAIConciergeQuery()" class="absolute right-2 top-2 bottom-2 px-3 bg-blue-600 text-white rounded-xl hover:bg-slate-900 transition flex items-center justify-center shadow-lg shadow-blue-100">
+                    <i data-lucide="send" size="14"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-8 right-8 z-[90]">
+        <button onclick="toggleAIHub()" class="bg-slate-900 text-white p-5 rounded-full shadow-2xl hover:bg-blue-600 transition-all flex items-center gap-3 group">
+            <i data-lucide="sparkles" class="group-hover:rotate-12 transition-transform"></i>
+            <span class="text-[10px] font-black uppercase tracking-widest pr-2">Need Help?</span>
+        </button>
+    </div>
+
+    <script>
+        const specialists = [
+            { name: "Dr. Sarah Ahmed", title: "Interventional Radiologist", exp: "12Y", emoji: "🔬", keywords: "xray, scan, tumor, mri, radiology" },
+            { name: "Dr. James Wilson", title: "Senior Pulmonologist", exp: "15Y", emoji: "🫁", keywords: "cough, lung, pneumonia, breath, chest" },
+            { name: "Dr. Maria Khan", title: "Orthopedic Surgeon", exp: "10Y", emoji: "🦴", keywords: "bone, fracture, back, spine, pain" },
+            { name: "Dr. Robert Chen", title: "Cardiologist", exp: "18Y", emoji: "❤️", keywords: "heart, chest, bp, vascular, cardiac" },
+            { name: "Dr. Aisha Malik", title: "Pediatric Specialist", exp: "8Y", emoji: "👶", keywords: "child, infant, baby, kids, fever" }
+        ];
+
+        function initDoctors() {
+            const grid = document.getElementById('specialist-grid');
+            grid.innerHTML = specialists.map(doc => `
+                <div class="specialist-card p-5 bg-white border-2 border-slate-100 rounded-[30px] hover:border-blue-200 transition-all cursor-pointer group flex items-center gap-4 shadow-sm" 
+                     data-keywords="${doc.keywords}" onclick="selectDoctor(this, '${doc.name}')">
+                    <div class="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl group-hover:bg-blue-50 transition-colors">${doc.emoji}</div>
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-bold text-slate-900 text-sm">${doc.name}</h4>
+                            <i data-lucide="badge-check" class="text-blue-500 w-3 h-3"></i>
+                        </div>
+                        <p class="text-[9px] text-slate-500 font-black uppercase tracking-tighter">${doc.title} • ${doc.exp} Exp</p>
+                    </div>
+                    <div class="w-5 h-5 rounded-full border-2 border-slate-200 group-hover:border-blue-500 flex items-center justify-center transition-all check-indicator">
+                        <div class="w-2.5 h-2.5 bg-blue-600 rounded-full opacity-0 transition-opacity"></div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function filterSpecialists() {
+            const query = document.getElementById('disease-search').value.toLowerCase();
+            const cards = document.querySelectorAll('.specialist-card');
+            let found = 0;
+            cards.forEach(card => {
+                if (card.dataset.keywords.includes(query) || query === "") {
+                    card.classList.remove('hidden');
+                    found++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            document.getElementById('expert-count').innerText = `${found} Specialists Matched`;
+        }
+
+        function selectDoctor(el, name) {
+            document.querySelectorAll('.specialist-card').forEach(c => {
+                c.classList.remove('border-blue-500');
+                c.querySelector('.check-indicator div').classList.add('opacity-0');
+            });
+            el.classList.add('border-blue-500');
+            el.querySelector('.check-indicator div').classList.remove('opacity-0');
+            document.getElementById('summary-doc').innerText = name;
+        }
+
+        function selectMode(el, modeName) {
+            document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // --- NEW AI CONCIERGE LOGIC ---
+        function toggleAIHub() {
+            const hub = document.getElementById('ai-hub');
+            hub.classList.toggle('translate-y-[120%]');
+            hub.classList.toggle('opacity-0');
+            hub.classList.toggle('translate-y-0');
+            hub.classList.toggle('opacity-100');
+        }
+
+        function processAIConciergeQuery() {
+            const input = document.getElementById('ai-input');
+            const query = input.value.trim().toLowerCase();
+            if (!query) return;
+
+            appendMessage('user', input.value);
+            input.value = '';
+
+            setTimeout(() => {
+                let response = "";
+                // Rule 1: Facilitate booking for specialists
+                const matchedDoc = specialists.find(d => query.includes(d.name.toLowerCase().split(' ')[1]) || d.keywords.split(', ').some(k => query.includes(k)));
+                
+                if (query.includes('video') || query.includes('clinic') || query.includes('written')) {
+                    response = "We offer Video (instant), In-Clinic (physical), and Written (report-based) modes. Which works best for your schedule? 📅";
+                } else if (matchedDoc) {
+                    response = `${matchedDoc.name} is a top expert in ${matchedDoc.title}. Would you like me to select them for your booking summary? 🩺`;
+                } else if (query.includes('urdu') || query.includes('اردو')) {
+                    response = "جی بالکل، میں آپ کی مدد اردو میں بھی کر سکتا ہوں۔ کیا میں آپ کے لیے ڈاکٹر کی اپائنٹمنٹ بک کر دوں؟ 🇵🇰";
+                } else if (query.includes('scan') || query.includes('result') || query.includes('xray')) {
+                    response = "I can attach your recent Neural X-Ray scans to this booking so the doctor is fully prepared. Shall I proceed? 🔬";
+                } else {
+                    response = "I'm here to facilitate your booking. Would you like to see available slots for our Heart or Bone specialists? 📅";
+                }
+                appendMessage('bot', response);
+            }, 600);
+        }
+
+        function appendMessage(role, text) {
+            const content = document.getElementById('ai-content');
+            const msg = document.createElement('div');
+            msg.className = `flex gap-3 mb-4 ${role === 'user' ? 'flex-row-reverse' : ''}`;
+            msg.innerHTML = `
+                <div class="w-8 h-8 ${role === 'user' ? 'bg-slate-900' : 'bg-blue-100'} text-${role === 'user' ? 'white' : 'blue-600'} rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <i data-lucide="${role === 'user' ? 'user' : 'sparkles'}" size="14"></i>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm max-w-[85%]">
+                    <p class="text-xs font-bold text-slate-700 leading-relaxed">${text}</p>
+                </div>
+            `;
+            content.appendChild(msg);
+            content.scrollTop = content.scrollHeight;
+            if(window.lucide) lucide.createIcons();
+        }
+
+        function handleBooking() {
+            const name = document.getElementById('user-name').value;
+            const btn = document.getElementById('confirm-btn');
+            if(!name) { alert("Please enter patient name."); return; }
+
+            btn.innerHTML = `<i data-lucide="loader-2" class="animate-spin" size="16"></i> Connecting...`;
+            lucide.createIcons();
+            setTimeout(() => {
+                document.getElementById('form-container').classList.add('hidden');
+                document.getElementById('success-message').classList.remove('hidden');
+            }, 2000);
+        }
+
+        window.onload = initDoctors;
+    </script>
+    <script src="JS/animations.js"></script>
+</body>
+</html>

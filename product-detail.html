@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vital Hub | Medical Specifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        model-viewer { 
+            width: 100%; height: 100%; position: absolute; 
+            top: 0; left: 0; display: none; background: white; z-index: 10;
+        }
+
+        .slider-dot.active { background-color: #3b82f6; width: 24px; }
+        
+        .slide-item {
+            min-width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1.5rem; background: radial-gradient(circle, #ffffff 0%, #f9fafb 100%);
+        }
+
+        .slide-item img {
+            max-width: 90%; max-height: 80%;
+            object-fit: contain; 
+            transition: transform 0.4s ease;
+        }
+
+        /* Glassmorphism Navigation */
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+        
+        /* AR Pulse Animation for Button */
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .ar-active-btn { animation: pulse-green 2s infinite; }
+    </style>
+</head>
+<body class="bg-[#FBFDFF] text-slate-900 font-sans pb-20 lg:pb-0">
+
+    <div id="lightbox" class="fixed inset-0 bg-slate-900/95 z-[100] hidden flex-col items-center justify-center p-4 backdrop-blur-md" onclick="closeLightbox()">
+        <button class="absolute top-8 right-8 text-white">
+            <i data-lucide="x" size="32"></i>
+        </button>
+        <img id="lightbox-img" src="" class="max-w-full max-h-[85vh] object-contain">
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 py-6 lg:py-10">
+        <div class="flex justify-between items-center mb-8 lg:mb-12">
+            <a href="store.html" class="inline-flex items-center gap-2 text-slate-400 hover:text-blue-600 font-bold text-[10px] uppercase tracking-widest transition-colors">
+                <i data-lucide="arrow-left" size="14"></i> Back to Catalog
+            </a>
+            <div class="flex gap-2 lg:gap-4">
+                <button class="p-3 rounded-full border border-slate-100 text-slate-400 hover:text-blue-600 transition-all bg-white shadow-sm">
+                    <i data-lucide="share-2" size="18"></i>
+                </button>
+                <button class="p-3 rounded-full border border-slate-100 text-slate-400 hover:text-rose-500 transition-all bg-white shadow-sm">
+                    <i data-lucide="heart" size="18"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+            <div class="lg:col-span-7 space-y-6 lg:space-y-8">
+                <div id="media-card" class="bg-white rounded-[32px] lg:rounded-[48px] shadow-sm border border-slate-100 relative overflow-hidden aspect-square group">
+                    
+                    <div id="image-slider" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar w-full h-full scroll-smooth"></div>
+                    
+                    <model-viewer id="p-model" 
+                        camera-controls 
+                        touch-action="pan-y" 
+                        shadow-intensity="1" 
+                        auto-rotate 
+                        ar 
+                        ar-modes="webxr scene-viewer quick-look" 
+                        xr-environment>
+                    </model-viewer>
+
+                    <button id="prev-btn" onclick="moveSlider(-1)" class="absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 z-20 glass-nav p-3 lg:p-4 rounded-full shadow-xl hidden lg:block opacity-0 group-hover:opacity-100 transition-all">
+                        <i data-lucide="chevron-left" size="20"></i>
+                    </button>
+                    <button id="next-btn" onclick="moveSlider(1)" class="absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 z-20 glass-nav p-3 lg:p-4 rounded-full shadow-xl hidden lg:block opacity-0 group-hover:opacity-100 transition-all">
+                        <i data-lucide="chevron-right" size="20"></i>
+                    </button>
+
+                    <div id="slider-nav" class="absolute bottom-6 lg:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 lg:gap-3 z-20"></div>
+
+                    <div class="absolute top-4 lg:top-8 right-4 lg:right-8 z-30">
+                        <button id="btn-3d-toggle" onclick="toggle3DMode()" class="bg-slate-900 text-white px-5 lg:px-6 py-2.5 lg:py-3 rounded-full text-[9px] lg:text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-blue-600 transition-all shadow-2xl hidden">
+                            <i data-lucide="box" size="14"></i> 3D Preview
+                        </button>
+                    </div>
+                </div>
+
+                <div id="product-video-container" class="hidden">
+                    <div class="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-2">
+                        <div class="p-4 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                                <i data-lucide="play" size="14" class="text-blue-600"></i>
+                            </div>
+                            <h4 class="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400">Video Walkthrough</h4>
+                        </div>
+                        <video id="p-video" controls class="w-full rounded-[24px] aspect-video bg-slate-50 object-cover">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5">
+                <div class="lg:sticky lg:top-10 space-y-8 lg:space-y-10">
+                    <header>
+                        <div class="flex flex-wrap items-center gap-2 mb-4 lg:mb-6">
+                            <span id="p-cat" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-100"></span>
+                            <span class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100 flex items-center gap-1">
+                                <i data-lucide="shield-check" size="10"></i> Certified Product
+                            </span>
+                        </div>
+                        <h1 id="p-name" class="text-3xl lg:text-5xl font-black text-slate-900 tracking-tighter leading-tight mb-4"></h1>
+                        <p id="p-desc" class="text-slate-500 text-sm lg:text-lg leading-relaxed font-medium"></p>
+                    </header>
+
+                    <section class="space-y-4 lg:space-y-6">
+                        <h4 class="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+                            <span class="w-6 h-[2px] bg-blue-500"></span> Technical Highlights
+                        </h4>
+                        <div id="p-features" class="grid grid-cols-1 gap-2 lg:gap-3"></div>
+                    </section>
+
+                    <div class="pt-8 lg:pt-10 border-t border-slate-100">
+                        <div class="flex items-center justify-between mb-8">
+                            <div>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Total Investment</p>
+                                <span id="p-price" class="text-3xl lg:text-5xl font-black text-slate-900 tracking-tighter"></span>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-bold text-emerald-500 uppercase">In Stock</p>
+                                <p class="text-[10px] text-slate-400">Ready to Ship</p>
+                            </div>
+                        </div>
+                        
+                        <button onclick="addToCartClick()" class="w-full bg-blue-600 text-white py-5 lg:py-6 rounded-2xl lg:rounded-[24px] font-black uppercase tracking-widest text-[10px] lg:text-xs flex items-center justify-center gap-4 shadow-xl shadow-blue-100 hover:bg-slate-900 transition-all">
+                            <i data-lucide="shopping-cart" size="18"></i> Add to Purchase Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="ai-trigger" class="fixed bottom-8 right-8 z-[100] group">
+        <button onclick="toggleAIHub()" class="bg-blue-600 hover:bg-slate-900 text-white p-5 rounded-3xl shadow-2xl shadow-blue-200 transition-all duration-500 hover:-translate-y-2 flex items-center gap-3">
+            <div class="relative">
+                <i data-lucide="bot" class="w-6 h-6"></i>
+                <span class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-blue-600 rounded-full animate-pulse"></span>
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] hidden group-hover:block transition-all">Vital Assistant</span>
+        </button>
+    </div>
+
+    <div id="ai-hub" class="fixed bottom-8 right-8 w-full max-w-[400px] h-[650px] bg-white rounded-[45px] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.2)] z-[101] border border-slate-100 flex flex-col overflow-hidden translate-y-[120%] opacity-0 transition-all duration-500 ease-in-out">
+        <div class="bg-slate-900 p-8 text-white relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl"></div>
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Neural Core v2.0 Online</p>
+                    </div>
+                    <h3 class="text-2xl font-black tracking-tighter">Vital Hub AI<br>Assistant</h3>
+                </div>
+                <button onclick="toggleAIHub()" class="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition">
+                    <i data-lucide="x" size="18"></i>
+                </button>
+            </div>
+        </div>
+        <div id="ai-content" class="flex-grow p-6 overflow-y-auto space-y-6 bg-slate-50/50 scroll-smooth"></div>
+        <div class="p-6 bg-white border-t border-slate-100">
+            <div class="relative">
+                <input type="text" id="ai-input" onkeypress="if(event.key === 'Enter') processAIQuery()" placeholder="Ask about medical specs..." class="w-full p-5 bg-slate-50 rounded-[25px] outline-none text-xs font-bold text-slate-700 pr-14">
+                <button onclick="processAIQuery()" class="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 text-white rounded-[20px]"><i data-lucide="send" size="16"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="JS/products.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        const autoAR = urlParams.get('ar') === 'true'; 
+        const p = products.find(item => item.id === productId);
+        let is3DActive = false;
+
+        if (p) {
+            document.getElementById('p-name').innerText = p.name;
+            document.getElementById('p-desc').innerText = p.description;
+            document.getElementById('p-price').innerText = `Rs ${p.price.toLocaleString()}`;
+            document.getElementById('p-cat').innerText = p.category;
+
+            // Media Slider
+            const slider = document.getElementById('image-slider');
+            const sliderNav = document.getElementById('slider-nav');
+            const images = p.images || [p.img];
+
+            slider.innerHTML = images.map(src => `
+                <div class="slide-item shrink-0 snap-center cursor-zoom-in" onclick="openLightbox('${src}')">
+                    <img src="${src}" decoding="async" alt="Product View">
+                </div>
+            `).join('');
+
+            if (images.length > 1) {
+                sliderNav.innerHTML = images.map((_, i) => `
+                    <div class="slider-dot w-1.5 h-1.5 rounded-full bg-slate-200 transition-all duration-300 ${i === 0 ? 'active' : ''}"></div>
+                `).join('');
+                slider.addEventListener('scroll', () => {
+                    const index = Math.round(slider.scrollLeft / slider.offsetWidth);
+                    document.querySelectorAll('.slider-dot').forEach((dot, i) => dot.classList.toggle('active', i === index));
+                });
+            }
+
+            // 3D Model Logic
+            if (p.hasModel && p.modelFile) {
+                const mv = document.getElementById('p-model');
+                const btn3d = document.getElementById('btn-3d-toggle');
+                mv.src = p.modelFile;
+                btn3d.classList.remove('hidden');
+                if (autoAR) { toggle3DMode(); btn3d.classList.add('ar-active-btn'); }
+            }
+
+            // VIDEO LOGIC (NEW)
+            if (p.hasVideo && p.videoFile) {
+                const videoContainer = document.getElementById('product-video-container');
+                const videoElement = document.getElementById('p-video');
+                videoContainer.classList.remove('hidden');
+                videoElement.src = p.videoFile;
+            }
+
+            // Features Logic
+            document.getElementById('p-features').innerHTML = p.features.map(f => `
+                <div class="feature-card flex items-center gap-4 p-4 bg-white border border-slate-50 rounded-2xl shadow-sm">
+                    <i data-lucide="check-circle-2" class="text-blue-500" size="16"></i>
+                    <span class="font-bold text-slate-700 text-xs tracking-tight">${f}</span>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function moveSlider(dir) {
+            const s = document.getElementById('image-slider');
+            s.scrollLeft += dir * s.offsetWidth;
+        }
+
+        function toggle3DMode() {
+            const mv = document.getElementById('p-model');
+            const sl = document.getElementById('image-slider');
+            const btn = document.getElementById('btn-3d-toggle');
+            const nav = document.getElementById('slider-nav');
+            is3DActive = !is3DActive;
+            mv.style.display = is3DActive ? 'block' : 'none';
+            sl.style.opacity = is3DActive ? '0' : '1';
+            if(nav) nav.style.display = is3DActive ? 'none' : 'flex';
+            btn.innerHTML = is3DActive ? `<i data-lucide="image"></i> Gallery` : `<i data-lucide="box"></i> 3D Preview`;
+            btn.classList.toggle('bg-blue-600', is3DActive);
+            lucide.createIcons();
+        }
+
+        function openLightbox(src) {
+            const lb = document.getElementById('lightbox');
+            document.getElementById('lightbox-img').src = src;
+            lb.classList.remove('hidden');
+            lb.classList.add('flex');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+            document.getElementById('lightbox').classList.remove('flex');
+        }
+
+        function addToCartClick() {
+            if(p) {
+                let cart = JSON.parse(localStorage.getItem('vitalHub_cart')) || [];
+                cart.push({ cartId: Date.now(), ...p });
+                localStorage.setItem('vitalHub_cart', JSON.stringify(cart));
+                alert(`${p.name} added to purchase order!`);
+            }
+        }
+    </script>
+    <script src="JS/ai-assistant.js"></script>
+</body>
+</html>

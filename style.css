@@ -1,0 +1,543 @@
+/* ============================================================
+   VITAL HUB — MASTER STYLESHEET v4.0
+   Enhanced: Animations, Scroll Effects, Hover Interactions
+   Restriction: Theme, layout, and media placement unchanged
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+:root {
+    --primary-blue: #3b82f6;
+    --medical-emerald: #10b981;
+    --dark-navy: #0B0F19;
+    --slate-bg: #F8FAFC;
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+    background-color: var(--slate-bg);
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5 {
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+}
+
+/* ── 1. PAGE LOAD PROGRESS BAR ── */
+#progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, #2563eb, #10b981, #2563eb);
+    background-size: 200% 100%;
+    z-index: 9999;
+    transition: width 0.25s ease, opacity 0.5s ease;
+    border-radius: 0 3px 3px 0;
+    animation: shimmerBar 1.5s linear infinite;
+}
+@keyframes shimmerBar {
+    0%   { background-position: 200% 0; }
+    100% { background-position: 0% 0; }
+}
+
+/* ── 2. HERO ENTRANCE ── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.92) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.hero-badge { animation: fadeUp   0.6s var(--ease-smooth) 0.10s both; }
+.hero-h1    { animation: fadeUp   0.75s var(--ease-smooth) 0.22s both; }
+.hero-p     { animation: fadeUp   0.75s var(--ease-smooth) 0.38s both; }
+.hero-btns  { animation: fadeUp   0.75s var(--ease-smooth) 0.52s both; }
+.hero-image { animation: scaleIn  0.9s var(--ease-smooth)  0.28s both; }
+
+/* ── 3. SCROLL REVEAL ── */
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.75s var(--ease-smooth), transform 0.75s var(--ease-smooth);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.reveal-left {
+    opacity: 0; transform: translateX(-40px);
+    transition: opacity 0.7s var(--ease-smooth), transform 0.7s var(--ease-smooth);
+}
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+.reveal-right {
+    opacity: 0; transform: translateX(40px);
+    transition: opacity 0.7s var(--ease-smooth), transform 0.7s var(--ease-smooth);
+}
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+.reveal-scale {
+    opacity: 0; transform: scale(0.94);
+    transition: opacity 0.7s var(--ease-smooth), transform 0.7s var(--ease-spring);
+}
+.reveal-scale.visible { opacity: 1; transform: scale(1); }
+
+.reveal-stagger > * {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity 0.6s var(--ease-smooth), transform 0.6s var(--ease-smooth);
+}
+
+/* ── 4. HERO FLOAT ── */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-10px); }
+}
+.hero-float { animation: float 6s ease-in-out infinite; }
+
+/* ── 5. BACKGROUNDS ── */
+.hero-gradient {
+    background: radial-gradient(circle at top right, #eff6ff, #ffffff);
+}
+
+/* ── 6. PRODUCT CARDS ── */
+.product-card-glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    transition: transform 0.4s var(--ease-spring), box-shadow 0.4s ease, border-color 0.3s ease;
+    will-change: transform;
+}
+@media (min-width: 1024px) {
+    .product-card-glass:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 32px 64px -12px rgba(59, 130, 246, 0.14);
+    }
+}
+.product-card-glass img,
+.product-card-hover img {
+    transition: transform 0.55s var(--ease-snappy);
+}
+.product-card-glass:hover img,
+.product-card-hover:hover img {
+    transform: scale(1.08);
+}
+
+.product-card-hover {
+    transition: transform 0.4s var(--ease-spring), box-shadow 0.4s ease;
+    will-change: transform;
+}
+.product-card-hover:hover {
+    transform: translateY(-14px);
+    box-shadow: 0 36px 72px -16px rgba(59, 130, 246, 0.15);
+}
+
+/* Arrow icon on card hover */
+.arrow-icon {
+    transition: transform 0.3s var(--ease-spring), background-color 0.3s ease;
+}
+.product-card-hover:hover .arrow-icon {
+    transform: rotate(12deg) scale(1.1);
+    background-color: #3b82f6 !important;
+}
+
+/* ── 7. BUTTONS ── */
+.btn-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+.btn-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-22deg);
+    transition: left 0.55s ease;
+}
+.btn-shimmer:hover::after { left: 160%; }
+
+.btn-primary {
+    transition: transform 0.2s var(--ease-spring), filter 0.2s ease;
+    cursor: pointer;
+}
+.btn-primary:hover  { transform: translateY(-2px); }
+.btn-primary:active { transform: scale(0.96); filter: brightness(0.92); }
+
+/* ── 8. NAVIGATION ── */
+nav a {
+    position: relative;
+    transition: color 0.28s ease;
+}
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 2px;
+    background: var(--primary-blue);
+    border-radius: 2px;
+    transition: width 0.3s var(--ease-smooth);
+}
+nav a:hover::after { width: 100%; }
+
+header {
+    transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+header.scrolled {
+    box-shadow: 0 4px 24px -4px rgba(0,0,0,0.08);
+}
+
+/* ── 9. CART BADGE POP ── */
+@keyframes badgePop {
+    0%  { transform: scale(1); }
+    35% { transform: scale(1.6); }
+    65% { transform: scale(0.9); }
+    100%{ transform: scale(1); }
+}
+.badge-pop { animation: badgePop 0.45s var(--ease-spring); }
+
+/* ── 10. STAT COUNTER ── */
+@keyframes statPop {
+    0%  { transform: scale(0.6); opacity: 0; }
+    65% { transform: scale(1.12); }
+    100%{ transform: scale(1); opacity: 1; }
+}
+.stat-number { display: inline-block; }
+.stat-number.pop { animation: statPop 0.6s var(--ease-spring); }
+
+/* ── 11. TICKER ── */
+@keyframes ticker {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+.ticker-wrap {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.ticker-track {
+    display: flex;
+    width: max-content;
+    animation: ticker 16s linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+
+/* ── 12. SERVICE CARD ── */
+@keyframes iconBounce {
+    0%  { transform: scale(1); }
+    45% { transform: scale(1.25) rotate(-5deg); }
+    75% { transform: scale(0.95) rotate(2deg); }
+    100%{ transform: scale(1); }
+}
+.service-card:hover .service-icon { animation: iconBounce 0.5s var(--ease-spring); }
+.service-card {
+    transition: transform 0.35s var(--ease-spring), box-shadow 0.35s ease;
+}
+.service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px -8px rgba(59,130,246,0.1);
+}
+
+/* ── 13. FAQ ── */
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.45s var(--ease-snappy);
+}
+.faq-item.active .faq-answer { max-height: 220px; }
+.faq-icon { transition: transform 0.38s var(--ease-snappy); }
+.faq-item.active .faq-icon { transform: rotate(180deg); }
+.faq-item {
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.faq-item:hover {
+    box-shadow: 0 6px 28px -6px rgba(59,130,246,0.1);
+    border-color: rgba(59,130,246,0.2) !important;
+}
+
+/* ── 14. CTA GLOW ── */
+@keyframes glowPulse {
+    0%, 100% { opacity: 0.12; transform: scale(1); }
+    50%       { opacity: 0.28; transform: scale(1.18); }
+}
+.cta-glow { animation: glowPulse 6s ease-in-out infinite; }
+
+/* ── 15. STEP NUMBERS ── */
+.step-num {
+    display: inline-block;
+    transition: color 0.3s ease, transform 0.3s var(--ease-spring);
+}
+.step-group:hover .step-num {
+    transform: scale(1.1) translateY(-2px);
+    color: var(--primary-blue);
+}
+.step-group {
+    transition: transform 0.3s var(--ease-spring);
+}
+.step-group:hover { transform: translateX(4px); }
+
+/* ── 16. FOOTER LINKS ── */
+.footer-link {
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.22s ease;
+    gap: 0;
+}
+.footer-link::before {
+    content: '→';
+    font-size: 11px;
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    transition: opacity 0.22s ease, width 0.22s ease, margin 0.22s ease;
+    margin-right: 0;
+}
+.footer-link:hover::before { opacity: 1; width: 14px; margin-right: 4px; }
+
+/* ── 17. AI TRIGGER RING ── */
+@keyframes ring {
+    0%   { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(1.9); opacity: 0; }
+}
+.ai-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 2px solid #2563eb;
+    animation: ring 2.2s ease-out infinite;
+    pointer-events: none;
+}
+@keyframes ring2 {
+    0%   { transform: scale(1); opacity: 0.35; }
+    100% { transform: scale(2.4); opacity: 0; }
+}
+.ai-ring-2 {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 1px solid #2563eb;
+    animation: ring2 2.2s ease-out 0.7s infinite;
+    pointer-events: none;
+}
+
+/* ── 18. LASER SCAN LINE ── */
+@keyframes scan-animation {
+    0%   { top: 0%;   opacity: 0; filter: blur(4px); }
+    10%  { opacity: 1; filter: blur(0); }
+    90%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; filter: blur(4px); }
+}
+.laser-line {
+    position: absolute;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(90deg, transparent, var(--primary-blue), transparent);
+    box-shadow: 0 0 30px var(--primary-blue);
+    animation: scan-animation 2.2s ease-in-out infinite;
+    z-index: 50;
+    pointer-events: none;
+}
+
+/* ── 19. AR GLOW ── */
+@keyframes pulse-emerald {
+    0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+    70%  { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+.ar-glow { animation: pulse-emerald 2.2s infinite; }
+
+/* ── 20. IMAGE STYLING ── */
+#user-image-preview, .medical-look {
+    transition: all 0.55s ease;
+    filter: brightness(0.95) contrast(1.05);
+    border-radius: 24px;
+}
+
+/* ── 21. SCROLLBAR ── */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--primary-blue); }
+
+/* ── 22. CHECKOUT / STORE ── */
+@keyframes slideInFromRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+.animate-in { animation: slideInFromRight 0.4s var(--ease-smooth) both; }
+
+.specialist-card {
+    transition: transform 0.3s var(--ease-spring), border-color 0.25s ease, box-shadow 0.3s ease;
+}
+.specialist-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 32px -8px rgba(59,130,246,0.12);
+}
+
+.mode-card {
+    transition: transform 0.3s var(--ease-spring), border-color 0.25s ease, background 0.25s ease;
+}
+.mode-card:hover { transform: translateY(-3px) scale(1.02); }
+
+/* ── 23. SLOT PILLS ── */
+.slot-pill {
+    transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease, transform 0.22s var(--ease-spring);
+}
+.slot-pill:hover { border-color: #3b82f6; color: #3b82f6; transform: scale(1.04); }
+.slot-pill.active { background-color: #3b82f6; border-color: #3b82f6; color: white; }
+
+/* ── 24. NUTRITION AI PANEL ── */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.animate-result { animation: slideIn 0.55s var(--ease-smooth) both; }
+
+#weekly-plan-content h5 {
+    border-left: 4px solid var(--medical-emerald);
+    padding-left: 12px;
+    margin-top: 28px;
+    margin-bottom: 16px;
+}
+#weekly-plan-content .flex { margin-bottom: 8px; line-height: 1.7; }
+
+/* ── 25. X-RAY PAGE ── */
+.scan-line {
+    height: 4px;
+    background: linear-gradient(to right, transparent, #3b82f6, transparent);
+    position: absolute;
+    width: 100%;
+    z-index: 20;
+    top: 0;
+    box-shadow: 0 0 24px #3b82f6, 0 0 48px rgba(59,130,246,0.3);
+    animation: scan 2.8s ease-in-out infinite;
+}
+@keyframes scan {
+    0%   { top: 0; }
+    100% { top: 100%; }
+}
+.medical-grid {
+    background-image: radial-gradient(#3b82f6 1px, transparent 1px);
+    background-size: 30px 30px;
+}
+.heatmap-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(239,68,68,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(59,130,246,0.2) 0%, transparent 40%);
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    display: none;
+}
+#user-image-preview.analyzed {
+    filter: grayscale(1) brightness(0.8) contrast(1.2);
+}
+
+@keyframes resultFadeIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+#analysis-list li { animation: resultFadeIn 0.4s var(--ease-smooth) both; }
+#analysis-list li:nth-child(1) { animation-delay: 0.05s; }
+#analysis-list li:nth-child(2) { animation-delay: 0.15s; }
+#analysis-list li:nth-child(3) { animation-delay: 0.25s; }
+
+/* ── 26. CONSULTATION ── */
+@keyframes pulse-ring {
+    0%   { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(1.35); opacity: 0; }
+}
+.mic-active::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 2px solid #10b981;
+    border-radius: 9999px;
+    animation: pulse-ring 1.6s var(--ease-snappy) infinite;
+}
+.ai-grid {
+    background-image: linear-gradient(rgba(59,130,246,0.1) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(59,130,246,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* ── 27. THANK-YOU ── */
+@keyframes checkBounce {
+    0%   { transform: scale(0.3); opacity: 0; }
+    60%  { transform: scale(1.15); }
+    80%  { transform: scale(0.95); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.check-anim { animation: checkBounce 0.7s var(--ease-spring) 0.2s both; }
+
+/* ── 28. TOOLTIP ── */
+[data-tooltip] { position: relative; }
+[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    background: #0f172a;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease, transform 0.22s var(--ease-spring);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    z-index: 99;
+}
+[data-tooltip]:hover::before { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── 29. SECTION ACCENT LINES ── */
+.section-reveal-line {
+    height: 2px;
+    width: 0;
+    background: linear-gradient(90deg, var(--primary-blue), var(--medical-emerald));
+    border-radius: 2px;
+    transition: width 0.9s var(--ease-smooth);
+}
+.section-reveal-line.visible { width: 80px; }
+
+/* ── 30. PRINT ── */
+@media print {
+    body { background-color: white !important; color: #1a1a1a !important; }
+    header, footer, #ai-trigger, .lg\:col-span-5, button, nav { display: none !important; }
+    #nutrition-output {
+        background-color: white !important;
+        color: black !important;
+        border: 1px solid #eee !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        position: static !important;
+    }
+    #weekly-plan-content { color: #334155 !important; }
+    .text-emerald-400, .text-emerald-500 { color: #059669 !important; font-weight: bold !important; }
+}
+
+/* ── 31. REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ── 32. RESPONSIVE ── */
+@media (max-width: 640px) {
+    .mobile-padding { padding-left: 1.5rem; padding-right: 1.5rem; }
+}

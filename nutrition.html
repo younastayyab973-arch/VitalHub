@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vital Hub | AI Nutrition Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="CSS/style.css">
+    <style>
+        /* AI Hub Specific Styles */
+        #ai-hub.active { transform: translateY(0); opacity: 1; }
+
+        /* Input hover/focus */
+        input, select {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        input:focus, select:focus {
+            transform: scale(1.01);
+        }
+
+        /* Medical condition labels */
+        label.flex {
+            transition: background 0.2s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        label.flex:hover { transform: scale(1.02); }
+
+        /* Result cards */
+        .bg-white\/5 {
+            transition: background 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .bg-white\/5:hover { transform: translateY(-3px); }
+
+        /* Progress indicator for loading */
+        @keyframes loadingDots {
+            0%,80%,100% { opacity: 0.2; transform: scale(0.8); }
+            40%          { opacity: 1;   transform: scale(1.1); }
+        }
+        .loading-dot:nth-child(1) { animation: loadingDots 1.2s ease-in-out 0s infinite; }
+        .loading-dot:nth-child(2) { animation: loadingDots 1.2s ease-in-out 0.2s infinite; }
+        .loading-dot:nth-child(3) { animation: loadingDots 1.2s ease-in-out 0.4s infinite; }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] font-sans text-slate-900">
+    <div id="progress-bar"></div>
+
+    <header class="flex justify-between items-center px-8 lg:px-12 py-6 bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-50">
+        <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='index.html'">
+            <div class="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-100">
+                <i data-lucide="activity"></i>
+            </div>
+            <span class="text-2xl font-black tracking-tighter text-blue-900 uppercase">Vital Hub</span>
+        </div>
+        <nav class="hidden lg:flex gap-10 text-[11px] font-black uppercase tracking-widest text-slate-400">
+            <a href="index.html" class="hover:text-blue-600 transition">Home</a>
+            <a href="store.html" class="hover:text-blue-600 transition">Store</a>
+            <a href="nutrition.html" class="text-blue-600 border-b-2 border-blue-600 pb-1">Nutrition AI</a>
+            <a href="xray.html" class="hover:text-blue-600 transition">X-Ray Demo</a>
+            <a href="appointment.html" class="hover:text-blue-600 transition">Book Appointment</a>
+        </nav>
+        <button class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold text-xs shadow-xl shadow-blue-100 hover:bg-slate-900 transition-all uppercase">JOIN NOW</button>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-12 px-6">
+        <div class="text-center mb-12 reveal">
+            <div class="bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase inline-flex items-center gap-2 border border-emerald-100 mb-4">
+                <i data-lucide="shield-check" size="14"></i> Bio-Medical Intelligence v3.0
+            </div>
+            <h1 class="text-5xl lg:text-6xl font-black tracking-tight">Clinical <span class="text-emerald-500">Nutrition.</span></h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-black mb-6 flex items-center gap-2 uppercase tracking-tight text-slate-700">
+                        <i data-lucide="fingerprint" class="text-blue-600"></i> Biometric Data
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="text-[9px] font-black text-slate-400 block mb-1 uppercase tracking-widest">Age</label>
+                            <input type="number" id="age" placeholder="25" class="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-emerald-100 outline-none transition-all font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black text-slate-400 block mb-1 uppercase tracking-widest">Gender</label>
+                            <select id="gender" class="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-emerald-100 outline-none font-bold">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="text-[9px] font-black text-slate-400 block mb-1 uppercase tracking-widest">Weight (kg)</label>
+                            <input type="number" id="weight" placeholder="70" class="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-emerald-100 outline-none font-bold">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black text-slate-400 block mb-1 uppercase tracking-widest">Height (cm)</label>
+                            <input type="number" id="height" placeholder="175" class="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-emerald-100 outline-none font-bold">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-[9px] font-black text-slate-400 block mb-1 uppercase tracking-widest">Activity Level</label>
+                        <select id="activity" class="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-emerald-100 outline-none font-bold">
+                            <option value="1.2">Sedentary (Office job, little exercise)</option>
+                            <option value="1.375">Lightly Active (Exercise 1-3 days/week)</option>
+                            <option value="1.55">Moderately Active (Exercise 3-5 days/week)</option>
+                            <option value="1.725">Very Active (Hard exercise 6-7 days/week)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="text-[9px] font-black text-slate-400 block mb-1 uppercase tracking-widest">Health Goal</label>
+                        <select id="goal" class="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-emerald-100 outline-none font-bold">
+                            <option value="loss">Weight Loss (-500 kcal)</option>
+                            <option value="gain">Weight Gain (+500 kcal)</option>
+                            <option value="muscle">Muscle Building (High Protein)</option>
+                            <option value="maintain">Maintain Weight</option>
+                            <option value="stamina">Improve Stamina</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="text-[9px] font-black text-slate-400 block mb-3 uppercase tracking-widest">Medical Conditions (Critical)</label>
+                        <div class="grid grid-cols-2 gap-2" id="medical-conditions">
+                            <label class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                                <input type="checkbox" value="Diabetes" class="w-4 h-4 rounded accent-emerald-500">
+                                <span class="text-[10px] font-bold text-slate-600">Diabetes</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                                <input type="checkbox" value="High Blood Pressure" class="w-4 h-4 rounded accent-emerald-500">
+                                <span class="text-[10px] font-bold text-slate-600">High BP</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                                <input type="checkbox" value="PCOS" class="w-4 h-4 rounded accent-emerald-500">
+                                <span class="text-[10px] font-bold text-slate-600">PCOS</span>
+                            </label>
+                            <label class="flex items-center gap-2 bg-slate-50 p-3 rounded-xl cursor-pointer hover:bg-slate-100 transition">
+                                <input type="checkbox" value="Thyroid" class="w-4 h-4 rounded accent-emerald-500">
+                                <span class="text-[10px] font-bold text-slate-600">Thyroid</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="text-[9px] font-black text-slate-400 block mb-1 uppercase tracking-widest">Allergies / Dietary Restrictions</label>
+                        <select id="restrictions" class="w-full p-4 bg-slate-50 rounded-2xl border-2 border-transparent focus:border-emerald-100 outline-none font-bold">
+                            <option value="none">No Restrictions</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="dairy-free">Dairy Free</option>
+                            <option value="gluten-free">Gluten Intolerant</option>
+                            <option value="halal">Halal Only</option>
+                        </select>
+                    </div>
+
+                    <button onclick="generateNutritionPlan()" class="w-full bg-emerald-500 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-slate-900 shadow-xl shadow-emerald-100 transition-all flex items-center justify-center gap-3 active:scale-95">
+                        Sync & Generate <i data-lucide="cpu" size="18"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="nutrition-output" class="lg:col-span-7 bg-slate-900 rounded-[45px] p-8 md:p-12 flex flex-col relative overflow-hidden min-h-[700px]">
+                <div id="ready-ui" class="my-auto text-center space-y-6 relative z-10">
+                    <div class="w-24 h-24 bg-white/5 rounded-[30px] flex items-center justify-center mx-auto border border-white/10">
+                        <i data-lucide="brain-circuit" class="text-emerald-400" size="40"></i>
+                    </div>
+                    <h4 class="text-white font-black text-2xl">Awaiting Bio-Data...</h4>
+                    <p class="text-slate-500 text-xs leading-relaxed max-w-[240px] mx-auto">Fill the profile to generate your 7-day medical-grade metabolic roadmap.</p>
+                </div>
+
+                <div id="result-ui" class="hidden text-left w-full space-y-8 relative z-10 animate-result">
+                    <div class="flex flex-wrap justify-between items-end gap-4 border-b border-white/10 pb-6">
+                        <div>
+                            <h4 class="text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Neural Strategy v3.0</h4>
+                            <h2 id="calories-out" class="text-5xl font-black text-white">0 <span class="text-lg text-emerald-500">kcal/day</span></h2>
+                        </div>
+                        <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
+                            <p class="text-[9px] text-slate-400 font-black uppercase mb-1">BMI Analysis</p>
+                            <p id="bmi-out" class="text-white font-black">--</p>
+                        </div>
+                    </div>
+
+                    <div id="diet-plan-container" class="space-y-8 custom-scrollbar max-h-[500px] overflow-y-auto pr-4">
+                    </div>
+
+                    <div class="flex gap-4 pt-4">
+                        <button onclick="window.print()" class="flex-1 bg-white/10 text-white py-4 rounded-2xl font-bold text-xs uppercase hover:bg-white/20 transition flex items-center justify-center gap-2">
+                            <i data-lucide="download" size="14"></i> PDF Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="ai-trigger" class="fixed bottom-8 right-8 z-[100] group">
+        <button onclick="toggleAIHub()" class="bg-blue-600 hover:bg-slate-900 text-white p-5 rounded-3xl shadow-2xl shadow-blue-200 transition-all duration-500 hover:-translate-y-2 flex items-center gap-3">
+            <div class="relative">
+                <i data-lucide="bot" class="w-6 h-6"></i>
+                <span class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-blue-600 rounded-full animate-pulse"></span>
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-[0.2em] hidden group-hover:block transition-all">Vital Assistant</span>
+        </button>
+    </div>
+
+    <div id="ai-hub" class="fixed bottom-8 right-8 w-full max-w-[400px] h-[650px] bg-white rounded-[45px] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.2)] z-[101] border border-slate-100 flex flex-col overflow-hidden translate-y-[120%] opacity-0 transition-all duration-500 ease-in-out">
+        <div class="bg-slate-900 p-8 text-white relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl"></div>
+            <div class="flex justify-between items-start relative z-10">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        <p class="text-[9px] font-black text-blue-400 uppercase tracking-widest">Neural Core v2.0 Online</p>
+                    </div>
+                    <h3 class="text-2xl font-black tracking-tighter">Vital Hub AI<br>Assistant</h3>
+                </div>
+                <button onclick="toggleAIHub()" class="bg-white/10 p-2 rounded-xl hover:bg-white/20 transition">
+                    <i data-lucide="x" size="18"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="ai-content" class="flex-grow p-6 overflow-y-auto space-y-6 bg-slate-50/50 scroll-smooth">
+            <div class="flex gap-3">
+                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="sparkles" size="14"></i>
+                </div>
+                <div class="bg-white p-4 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm">
+                    <p class="text-xs font-bold text-slate-700 leading-relaxed">
+                        Hello! I'm the Vital Hub Neural Engine. Need help interpreting your nutrition plan or adjusting your goals?
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 bg-white border-t border-slate-100">
+            <div class="relative">
+                <input type="text" id="ai-input" 
+                    onkeypress="if(event.key === 'Enter') processAIQuery()" 
+                    placeholder="Ask about calories, macros, plans..." 
+                    class="w-full p-5 bg-slate-50 rounded-[25px] border-2 border-transparent focus:border-blue-100 focus:bg-white outline-none transition-all text-xs font-bold text-slate-700 pr-14">
+                
+                <button onclick="processAIQuery()" class="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 text-white rounded-[20px] hover:bg-slate-900 transition-all flex items-center justify-center shadow-lg shadow-blue-100">
+                    <i data-lucide="send" size="16"></i>
+                </button>
+            </div>
+            <p class="text-center text-[8px] text-slate-400 font-bold uppercase tracking-widest mt-4">
+                AI-Driven Medical Support • Powered by Vital Hub Labs
+            </p>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-50 py-12 px-12 text-center text-slate-300 text-[10px] font-bold uppercase tracking-[0.4em]">
+        © 2026 Vital Hub AI Labs • Clinical Grade Personalization
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleAIHub() {
+            const hub = document.getElementById('ai-hub');
+            const isHidden = hub.classList.contains('translate-y-[120%]');
+            if (isHidden) {
+                hub.classList.remove('translate-y-[120%]', 'opacity-0');
+                hub.classList.add('translate-y-0', 'opacity-100');
+            } else {
+                hub.classList.add('translate-y-[120%]', 'opacity-0');
+                hub.classList.remove('translate-y-0', 'opacity-100');
+            }
+        }
+
+        window.handleAIAssistant = function(query) {
+            const content = document.getElementById('ai-content');
+            const userMsg = document.createElement('div');
+            userMsg.className = "flex gap-3 justify-end";
+            userMsg.innerHTML = `
+                <div class="bg-blue-600 p-4 rounded-2xl rounded-tr-none shadow-sm text-white">
+                    <p class="text-xs font-bold leading-relaxed">${query}</p>
+                </div>
+            `;
+            content.appendChild(userMsg);
+
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = "flex gap-3";
+                aiMsg.innerHTML = `
+                    <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="cpu" size="14"></i>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm">
+                        <p class="text-xs font-bold text-slate-700 leading-relaxed">
+                            Processing query: "${query}". Our neural engine suggests monitoring your protein intake if your goal is muscle building.
+                        </p>
+                    </div>
+                `;
+                content.appendChild(aiMsg);
+                lucide.createIcons();
+                content.scrollTop = content.scrollHeight;
+            }, 1000);
+        };
+
+        function processAIQuery() {
+            const input = document.getElementById('ai-input');
+            const query = input.value.trim();
+            if (query && typeof window.handleAIAssistant === 'function') {
+                window.handleAIAssistant(query);
+                input.value = '';
+            }
+        }
+
+        function generateNutritionPlan() {
+            const age = parseFloat(document.getElementById('age').value);
+            const gender = document.getElementById('gender').value;
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const activity = parseFloat(document.getElementById('activity').value);
+            const goal = document.getElementById('goal').value;
+            const restrictions = document.getElementById('restrictions').value;
+
+            const selectedConditions = Array.from(document.querySelectorAll('#medical-conditions input:checked'))
+                .map(cb => cb.value);
+
+            if (!age || !weight || !height) {
+                alert("CRITICAL ERROR: Biometric profile incomplete. Please enter all values.");
+                return;
+            }
+
+            document.getElementById('ready-ui').innerHTML = `
+                <div class="flex flex-col items-center gap-4">
+                    <div class="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+                    <p class="text-emerald-400 font-black text-[10px] uppercase tracking-widest animate-pulse">Processing Metabolic Data...</p>
+                </div>
+            `;
+
+            setTimeout(() => {
+                let bmr = (gender === 'male') ? 
+                    (10 * weight) + (6.25 * height) - (5 * age) + 5 : 
+                    (10 * weight) + (6.25 * height) - (5 * age) - 161;
+
+                let tdee = bmr * activity;
+                let targetCalories;
+                let exerciseAdvice = "";
+
+                switch(goal) {
+                    case 'loss': targetCalories = tdee - 500; exerciseAdvice = "3 days HIIT cardio + 2 days resistance training."; break;
+                    case 'gain': targetCalories = tdee + 500; exerciseAdvice = "4 days heavy strength training. Focus on compound lifts."; break;
+                    case 'muscle': targetCalories = tdee + 250; exerciseAdvice = "5 days strength training with progressive overload."; break;
+                    case 'stamina': targetCalories = tdee; exerciseAdvice = "Zone 2 aerobic training 4 days a week."; break;
+                    default: targetCalories = tdee;
+                }
+
+                const bmi = (weight / ((height/100)**2)).toFixed(1);
+                let bmiStatus = bmi < 18.5 ? "Underweight" : bmi < 25 ? "Optimal" : "Overweight";
+
+                document.getElementById('ready-ui').classList.add('hidden');
+                document.getElementById('result-ui').classList.remove('hidden');
+                document.getElementById('calories-out').innerHTML = `${Math.round(targetCalories)} <span class="text-lg text-emerald-500">kcal/day</span>`;
+                document.getElementById('bmi-out').innerText = `${bmi} (${bmiStatus})`;
+
+                // Gadget Logic Mapping - Updated to link to product-detail.html
+                const gadgetDatabase = {
+                    "High Blood Pressure": {
+                        name: "Vital-Sync BP Monitor",
+                        desc: "Medical-grade digital pressure tracker with AI sync.",
+                        link: "product-detail.html?id=2",
+                        icon: "heart-pulse"
+                    },
+                    "Diabetes": {
+                        name: "Gluco-Smart Sensor",
+                        desc: "Continuous glucose monitoring with real-time phone alerts.",
+                        link: "product-detail.html?id=5",
+                        icon: "activity"
+                    },
+                    "PCOS": {
+                        name: "Hormone Sync Scale",
+                        desc: "Bio-impedance scale tracking body composition & cycle phases.",
+                        link: "product-detail.html?id=6",
+                        icon: "scale"
+                    },
+                    "Thyroid": {
+                        name: "Metabolic Smart Watch",
+                        desc: "Advanced basal temperature and resting heart rate monitoring.",
+                        link: "product-detail.html?id=1",
+                        icon: "watch"
+                    }
+                };
+
+                let gadgetHtml = "";
+                if (selectedConditions.length > 0) {
+                    const condition = selectedConditions[0];
+                    const gadget = gadgetDatabase[condition];
+                    if (gadget) {
+                        gadgetHtml = `
+                            <div class="p-6 bg-blue-600/10 rounded-3xl border border-blue-500/20 mt-4 animate-result">
+                                <div class="items-start gap-4 flex">
+                                    <div class="bg-blue-600 p-3 rounded-2xl text-white">
+                                        <i data-lucide="${gadget.icon}" size="20"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-blue-400 text-[10px] font-black uppercase mb-1">Recommended Gadget for ${condition}</p>
+                                        <h6 class="text-white font-bold text-sm mb-1">${gadget.name}</h6>
+                                        <p class="text-slate-400 text-[11px] mb-3 leading-relaxed">${gadget.desc}</p>
+                                        <a href="${gadget.link}" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-white hover:text-blue-600 transition-all">
+                                            View Gadget <i data-lucide="external-link" size="12"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                const container = document.getElementById('diet-plan-container');
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <h5 class="text-emerald-400 text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="utensils" size="14"></i> 🍳 Daily Precision Plan
+                        </h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white/5 p-5 rounded-3xl border border-white/5">
+                                <p class="text-blue-400 text-[9px] font-black uppercase mb-1">Breakfast</p>
+                                <p class="text-slate-300 text-xs font-bold leading-relaxed">3 Egg Whites + 1 Whole Egg, 2 Slices Brown Bread, 1/2 Avocado.</p>
+                            </div>
+                            <div class="bg-white/5 p-5 rounded-3xl border border-white/5">
+                                <p class="text-amber-400 text-[9px] font-black uppercase mb-1">Lunch</p>
+                                <p class="text-slate-300 text-xs font-bold leading-relaxed">150g Grilled Chicken/Tofu, 1 Cup Brown Rice, Steamed Broccoli.</p>
+                            </div>
+                            <div class="bg-white/5 p-5 rounded-3xl border border-white/5">
+                                <p class="text-rose-400 text-[9px] font-black uppercase mb-1">Dinner</p>
+                                <p class="text-slate-300 text-xs font-bold leading-relaxed">120g Fish or Lentils, Large Green Salad, Handful of Walnuts.</p>
+                            </div>
+                            <div class="bg-white/5 p-5 rounded-3xl border border-white/5">
+                                <p class="text-emerald-400 text-[9px] font-black uppercase mb-1">Snacks</p>
+                                <p class="text-slate-300 text-xs font-bold leading-relaxed">Greek Yogurt with Chia Seeds, 1 Apple.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-emerald-500/10 rounded-3xl border border-emerald-500/20">
+                        <p class="text-emerald-400 text-[10px] font-black uppercase mb-2 flex items-center gap-2">
+                            <i data-lucide="dumbbell" size="12"></i> 🏋 Training Protocol
+                        </p>
+                        <p class="text-slate-300 text-xs leading-relaxed font-bold">${exerciseAdvice}</p>
+                    </div>
+                    ${gadgetHtml}
+                `;
+                lucide.createIcons();
+            }, 1800);
+        }
+    </script>
+    <script src="JS/animations.js"></script>
+</body>
+</html>
